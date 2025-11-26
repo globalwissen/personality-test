@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const nav = useNavigate();
+  console.log(nav);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
