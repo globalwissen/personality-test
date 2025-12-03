@@ -1,34 +1,20 @@
 import { createBrowserRouter } from "react-router-dom";
-import Landing from "../page/landingpage";
-import StartTest from "../page/startTest";
-import TestPage from "../page/Testpage";
-import Register from "../Auth/register";
-import Login from "../Auth/login";
-import ResultPage from "../page/result";
+import HomePage from "../page/landingpage";
+
+import { ResultsPage } from "../page/Resultpage";
+import TestWrapper from "../wrapper/testwrapper";
 
 export const routes = createBrowserRouter([
   {
-    path: "",
-    element: <Landing />,
+    path: "/",
+    element: <HomePage />,
   },
   {
-    path: "start",
-    element: <StartTest />,
+    path: "/test",
+    element: <TestWrapper />,
   },
   {
-    path: "test",
-    element: <TestPage />,
-  },
-  {
-    path: "register",
-    element: <Register />,
-  },
-  {
-    path: "login",
-    element: <Login />,
-  },
-  {
-    path: "result",
-    element: <ResultPage />,
+    path: "/results",
+    element: <ResultsPage />,
   },
 ]);

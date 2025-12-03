@@ -1,90 +1,66 @@
-import { useMemo, useState } from "react";
-import { questions } from "../data/data";
+import { useState } from "react";
+import { ProgressBar } from "../components/progressbar";
 import QuestionCard from "../components/questioncard";
-import ProgressBar from "../components/progressbar";
-import { scoreAnswers } from "../utils/scoring";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import { sampleQuestions } from "../data/data";
+import type { Answer } from "../types/personality";
 
-export default function TestPage() {
-  // map questions by id for quick access
-  const questionMap = useMemo(() => {
-    const m: Record<string, { axis: string }> = {};
-    for (const q of questions) m[q.id] = { axis: q.axis };
-    return m;
-  }, []);
+interface TestPageProps {
+  onComplete: (answers: Answer[]) => void;
+}
 
-  const total = questions.length;
-  const [index, setIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, "A" | "B">>({});
-  const nav = useNavigate();
+const TestPage: React.FC<TestPageProps> = ({ onComplete }) => {
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
 
-  const currentQ = questions[index];
+  const handleAnswer = (questionIndex: number, value: number) => {
+    const newAnswers = [...answers];
+    newAnswers[questionIndex] = {
+      questionId: sampleQuestions[questionIndex].id,
+      value,
+    };
+    setAnswers(newAnswers);
 
-  const setAnswer = (val: "A" | "B") => {
-    setAnswers((s) => ({ ...s, [currentQ.id]: val }));
-  };
-
-  const handleNext = () => {
-    if (!answers[currentQ.id]) {
-      toast.error("Please pick an answer");
-      return;
-    }
-    setIndex((i) => Math.min(i + 1, total - 1));
-  };
-
-  const handlePrev = () => setIndex((i) => Math.max(i - 1, 0));
-
-  const handleSubmit = () => {
-    // ensure all answered
-    if (Object.keys(answers).length !== total) {
-      toast.error("Please answer all questions before submitting");
-      return;
+    // Unlock next question if available
+    if (
+      questionIndex === currentQuestion &&
+      currentQuestion < sampleQuestions.length - 1
+    ) {
+      setCurrentQuestion(currentQuestion + 1);
     }
 
-    const result = scoreAnswers(answers, questionMap);
-    // Save result to local storage or send to backend
-    localStorage.setItem("lastResult", JSON.stringify(result));
-    // optionally call backend to save student category
-    // axios.post('/student/personality-test', { type: result.type, category: result.category })
-
-    nav("/result");
+    // Complete test
+    if (newAnswers.length === sampleQuestions.length) {
+      const allAnswered = newAnswers.every((a) => a !== undefined);
+      if (allAnswered) onComplete(newAnswers as Answer[]);
+    }
   };
 
   return (
-    <div className="mt-6">
-      <ProgressBar current={index + 1} total={total} />
+    <div className="min-h-screen py-10 px-4 bg-gray-50">
+      <div className="w-full  mb-12 flex flex-col justify-around items-center">
+        <p className=" text-5xl">Personality Test </p>
+        <p className="text-xl">Discover your personality type and category.</p>
+      </div>
+      <div className="container mx-auto max-w-4xl space-y-6">
+        <ProgressBar
+          current={answers.filter((a) => a !== undefined).length}
+          total={sampleQuestions.length}
+          className="mb-4"
+        />
 
-      <QuestionCard
-        question={currentQ}
-        value={answers[currentQ.id]}
-        onChange={setAnswer}
-      />
-
-      <div className="flex justify-between mt-4 px-6">
-        <button
-          onClick={handlePrev}
-          disabled={index === 0}
-          className="px-4 py-2 border rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
-        {index < total - 1 ? (
-          <button
-            onClick={handleNext}
-            className="px-4 py-2 bg-[#003058] text-white rounded"
-          >
-            Next
-          </button>
-        ) : (
-          <button
-            onClick={handleSubmit}
-            className="px-4 py-2 bg-green-600 text-white rounded"
-          >
-            Submit
-          </button>
-        )}
+        {sampleQuestions.map((q, index) => (
+          <QuestionCard
+            key={q.id}
+            question={q.text}
+            questionNumber={index + 1}
+            active={index <= currentQuestion}
+            selectedValue={answers[index]?.value ?? null}
+            onAnswer={(value) => handleAnswer(index, value)}
+          />
+        ))}
       </div>
     </div>
   );
-}
+};
+
+export default TestPage;
