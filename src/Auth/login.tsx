@@ -26,17 +26,24 @@ export default function Login() {
     <div className="max-w-md mx-auto mt-8">
       <h2 className="text-2xl font-semibold mb-4">Login</h2>
       <form onSubmit={handleLogin} className="space-y-3">
-        <input
-          placeholder="Email"
-          className="w-full p-2 border"
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-        />
-        <input
-          placeholder="Password"
-          type="password"
-          className="w-full p-2 border"
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
+        <div>
+          <label htmlFor="">Email:</label>
+          <input
+            placeholder="Email"
+            className="w-full p-2 border"
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+          />
+        </div>
+        <div>
+          <label htmlFor="">Matric No:</label>
+          <input
+            placeholder="Password"
+            type="password"
+            className="w-full p-2 border"
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+          />
+        </div>
+
         <button className="w-full bg-[#003058] text-white py-2">Login</button>
       </form>
     </div>
